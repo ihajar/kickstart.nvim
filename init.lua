@@ -88,7 +88,23 @@ require('lazy').setup({
 
       -- Adds a number of user-friendly snippets
       'rafamadriz/friendly-snippets',
+
+      -- Adds for rust
+      {
+        'Saecki/crates.nvim',
+        event = { 'BufRead Cargo.toml' },
+        opts = {
+          src = {
+            cmp = { enabled = true },
+          },
+        },
+      },
     },
+    --@param opts cmp.ConfigSchema
+    opts = function(_, opts)
+      opts.sources = opts.sources or {}
+      table.insert(opts.sources, { name = "crates" })
+    end,
   },
 
   -- Useful plugin to show you pending keybinds.
@@ -176,7 +192,7 @@ require('lazy').setup({
     config = function()
       require('onedark').setup {
         -- Set a style preset. 'dark' is default.
-        style = 'dark', -- dark, darker, cool, deep, warm, warmer, light
+        style = 'deep', -- dark, darker, cool, deep, warm, warmer, light
       }
       require('onedark').load()
     end,
@@ -236,13 +252,20 @@ require('lazy').setup({
       'nvim-treesitter/nvim-treesitter-textobjects',
     },
     build = ':TSUpdate',
+    -- new lines for rust
+    opts = function (_, opts)
+      if type(opts.ensure_installed) == "table" then
+        vim.list_extend(opts.ensure_installed, {"ron", "rust", "toml"})
+      end
+    end,
+    -- end of rust
   },
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
   --       Uncomment any of the lines below to enable them.
   -- require 'kickstart.plugins.autoformat',
-  -- require 'kickstart.plugins.debug',
+  -- require 'kickstart.plugins.rust_config',
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
@@ -558,7 +581,9 @@ local servers = {
   -- clangd = {},
   -- gopls = {},
   -- pyright = {},
-  -- rust_analyzer = {},
+  rust_analyzer = {
+    cmd = {"rustup", "run", "stable", "rust-analyzer"}
+  },
   -- tsserver = {},
   -- html = { filetypes = { 'html', 'twig', 'hbs'} },
 
