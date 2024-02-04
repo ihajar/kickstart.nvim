@@ -62,7 +62,15 @@ require('lazy').setup({
     'neovim/nvim-lspconfig',
     dependencies = {
       -- Automatically install LSPs to stdpath for neovim
-      { 'williamboman/mason.nvim', config = true },
+      {
+        'williamboman/mason.nvim',
+        config = true,
+        opts = {
+          ensure_installed = {
+            'rust_analyzer',
+          },
+        },
+      },
       'williamboman/mason-lspconfig.nvim',
 
       -- Useful status updates for LSP
@@ -89,23 +97,14 @@ require('lazy').setup({
       -- Adds a number of user-friendly snippets
       'rafamadriz/friendly-snippets',
 
-      -- Adds for rust
-      {
-        'Saecki/crates.nvim',
-        event = { 'BufRead Cargo.toml' },
-        opts = {
-          src = {
-            cmp = { enabled = true },
-          },
-        },
-      },
-    },
-    --@param opts cmp.ConfigSchema
-    opts = function(_, opts)
-      opts.sources = opts.sources or {}
-      table.insert(opts.sources, { name = "crates" })
-    end,
-  },
+      -- For crates
+      opts = function ()
+        local M = require "cmp"
+        table.insert(M.sources, {name = "crates"})
+        return M
+      end,
+    }
+ },
 
   -- Useful plugin to show you pending keybinds.
   { 'folke/which-key.nvim', opts = {} },
@@ -192,7 +191,7 @@ require('lazy').setup({
     config = function()
       require('onedark').setup {
         -- Set a style preset. 'dark' is default.
-        style = 'deep', -- dark, darker, cool, deep, warm, warmer, light
+        style = 'darker', -- dark, darker, cool, deep, warm, warmer, light
       }
       require('onedark').load()
     end,
@@ -344,7 +343,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   pattern = '*',
 })
 
--- [[ Configure Neotree ]]
+-- [[ Updating all Crates keymaps ]]
 
 
 -- [[ Configure Telescope ]]
@@ -433,7 +432,7 @@ vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = 
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash' },
+    ensure_installed = { 'c', 'cpp', 'css', 'go', 'html', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'json', 'vimdoc', 'vim', 'bash' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
     auto_install = false,
@@ -581,9 +580,9 @@ local servers = {
   -- clangd = {},
   -- gopls = {},
   -- pyright = {},
-  rust_analyzer = {
-    cmd = {"rustup", "run", "stable", "rust-analyzer"}
-  },
+--  rust_analyzer = {
+  --  cmd = {"rustup", "run", "stable", "rust-analyzer"},
+ -- },
   -- tsserver = {},
   -- html = { filetypes = { 'html', 'twig', 'hbs'} },
 
